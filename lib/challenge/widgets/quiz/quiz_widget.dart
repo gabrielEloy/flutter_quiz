@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class QuizWidget extends StatefulWidget {
   final QuestionModel question;
-  final VoidCallback handleNextPage;
+  final ValueChanged<bool> handleNextPage;
   const QuizWidget({required this.handleNextPage, required this.question});
 
   @override
@@ -28,12 +28,12 @@ class _QuizWidgetState extends State<QuizWidget> {
           answer: answers(i), 
           isSelected: i == selectedIndex,
           disabled: selectedIndex != -1,
-          onTap: ()async{
+          onTap: (value)async{
             setState(() {
               selectedIndex = i;
             });
             await Future.delayed(Duration(milliseconds: 500));
-            widget.handleNextPage();
+            widget.handleNextPage(value);
           },
           )
       ],),

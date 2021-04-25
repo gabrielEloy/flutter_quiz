@@ -2,12 +2,14 @@ import 'package:devquiz/challenge/challenge_controller.dart';
 import 'package:devquiz/challenge/widgets/next_button/next_button_widget.dart';
 import 'package:devquiz/challenge/widgets/question_indicator/question_indicator_widget.dart';
 import 'package:devquiz/challenge/widgets/quiz/quiz_widget.dart';
+import 'package:devquiz/result_page/result_page.dart';
 import 'package:devquiz/shared/progress_indicator/models/question_model.dart';
 import 'package:flutter/material.dart';
 
 class ChallengePage extends StatefulWidget {
   final List<QuestionModel> questions;
-  ChallengePage({required this.questions});
+  final String title;
+  ChallengePage({required this.questions, required this.title});
 
   @override
   _ChallengePageState createState() => _ChallengePageState();
@@ -28,6 +30,13 @@ class _ChallengePageState extends State<ChallengePage> {
   void handleNextPage() {
     pageController.nextPage(
         duration: Duration(milliseconds: 250), curve: Curves.linear);
+  }
+
+  void onSelected(bool value){
+    if(value){
+      controller.rightAnswers += 1;
+    }
+    handleNextPage();
   }
 
   @override
@@ -55,7 +64,7 @@ class _ChallengePageState extends State<ChallengePage> {
           controller: pageController,
           children: widget.questions
               .map((q) =>
-                  QuizWidget(question: q, handleNextPage: handleNextPage))
+                  QuizWidget(question: q, handleNextPage: onSelected))
               .toList(),
         ),
         bottomNavigationBar: SafeArea(
@@ -68,12 +77,10 @@ class _ChallengePageState extends State<ChallengePage> {
                       children: [
                         if (controller.currentPageNotifier.value !=
                             widget.questions.length)
-                        Expanded(
-                            child: NextButton.white(
-                                onTap: () {
-                                  handleNextPage();
-                                },
-                                label: 'Pular')),
+                          Expanded(
+                              child: NextButton.white(
+                                  onTap: handleNextPage,
+                                  label: 'Pular')),
                         if (controller.currentPageNotifier.value ==
                             widget.questions.length)
                           SizedBox(
@@ -84,7 +91,14 @@ class _ChallengePageState extends State<ChallengePage> {
                           Expanded(
                               child: NextButton.green(
                                   onTap: () {
-                                    Navigator.pop(context);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ResultPage(
+                                                  title: widget.title,
+                                                  length: widget.questions.length,
+                                                  rightAnswers: controller.rightAnswers,
+                                                )));
                                   },
                                   label: 'Finalizar')),
                       ],
